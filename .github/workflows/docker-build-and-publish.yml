@@ -235,12 +235,14 @@ jobs:
               # get image name for up and downloading pr artifacts
               base_image_name=$(echo "${{ inputs.base_image }}" | sed 's|.*/||; s|:.*||')
               echo "base_image_name=${base_image_name}" >> $GITHUB_OUTPUT
+              echo "base_image_artifact_name=${base_image_name}${VARIANT_SUFFIX}" >> $GITHUB_OUTPUT
             fi
 
             if [[ "${{ inputs.base_app_image != '' }}" == "true" ]]; then
               # get image name for up and downloading pr artifacts
               base_app_image_name=$(echo "${{ inputs.base_app_image }}" | sed 's|.*/||; s|:.*||')
               echo "base_app_image_name=${base_app_image_name}" >> $GITHUB_OUTPUT
+              echo "base_app_image_artifact_name=${base_app_image_name}${VARIANT_SUFFIX}" >> $GITHUB_OUTPUT
             fi
           fi
 
@@ -257,7 +259,7 @@ jobs:
         if: ${{ needs.prepare.outputs.is_fork == 'true' && steps.prep.outputs.base_image_name != '' }}
         uses: dawidd6/action-download-artifact@v10
         with:
-          name: docker-${{ steps.prep.outputs.base_image_name }}-${{ env.PLATFORM_PAIR }}.tar
+          name: docker-${{ steps.prep.outputs.base_image_artifact_name }}-${{ env.PLATFORM_PAIR }}.tar
           workflow_search: true
           search_artifacts: true
           allow_forks: true
@@ -270,7 +272,7 @@ jobs:
         if: ${{ needs.prepare.outputs.is_fork == 'true' && steps.prep.outputs.base_app_image_name != '' }}
         uses: dawidd6/action-download-artifact@v10
         with:
-          name: docker-${{ steps.prep.outputs.base_app_image_name }}-${{ env.PLATFORM_PAIR }}.tar
+          name: docker-${{ steps.prep.outputs.base_app_image_artifact_name }}-${{ env.PLATFORM_PAIR }}.tar
           workflow_search: true
           search_artifacts: true
           allow_forks: true
@@ -307,7 +309,7 @@ jobs:
         uses: docker/setup-buildx-action@v4
         with:
           version: latest
-          driver-opts: image=moby/buildkit:master${{ github.event_name == 'pull_request' && ',network=host' || '' }}
+          driver-opts: image=moby/buildkit:master${{ needs.prepare.outputs.is_fork == 'true' && ',network=host' || '' }}
 
       - name: Login to DockerHub
         if: steps.prep.outputs.has_docker_token != ''

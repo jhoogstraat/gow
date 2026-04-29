@@ -11,7 +11,7 @@
 
 source /smoke-common/lib.sh
 
-assert_has heroic
+assert_has heroic getopt
 assert_version heroic --version
 
 smoke_report

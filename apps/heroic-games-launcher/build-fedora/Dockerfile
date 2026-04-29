@@ -34,6 +34,7 @@ RUN dnf install -y \
     wget \
     ca-certificates \
     xz \
+    util-linux \
     && dnf clean all
 
 WORKDIR /
